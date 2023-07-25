@@ -1,3 +1,5 @@
-A quick tutorial on fast api. 
-This script requires Uvicorn
-and sql connector
+A quick tutorial on fast api.
+
+dependencies: python-multipart
+              uvicorn
+              sql-connector

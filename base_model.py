@@ -18,7 +18,6 @@ class BaseModel:
         """
         """Initialization of the base model"""
         self.id = student_id
-        print(self.id)
         for key, value in kwargs.items():
             if key != "__class__":
                 setattr(self, key, value)

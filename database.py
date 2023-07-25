@@ -37,17 +37,32 @@ class Database:
         Gets an object using the class and the id
         :param cls: the class of the object
         :param obj_id: the object id
-        :return: returns an object
+        :return: returns a dict of the object
         """
         if obj_id is not None:
-            stud = self.__session.query(cls).filter_by(id=obj_id).first()
-            if stud is not None:
-                return object_as_dict(stud)
-            return stud
-        stud_dictionary = {}
-        for stud in self.__session.query(cls):
-            stud_dictionary[stud.id] = object_as_dict(stud)
-        return stud_dictionary
+            obj = self.__session.query(cls).filter_by(id=obj_id).first()
+            if obj is not None:
+                return object_as_dict(obj)
+            return obj
+        obj_dictionary = {}
+        for obj in self.__session.query(cls):
+            obj_dictionary[obj.id] = object_as_dict(obj)
+        return obj_dictionary
+
+    def update(self, cls: [Student, Attendance], obj_id: int, **kwargs):
+        """
+        Updates an Object
+        :param cls: The class of the object to be updated
+        :param obj_id: The id of the object to be updated
+        :param kwargs: The attributes to be updated
+        :return: A dict of the object
+        """
+        obj = self.__session.query(cls).filter_by(id=obj_id).first()
+        if obj is not None:
+            for key, value in kwargs.items():
+                setattr(obj, key, value)
+        self.save()
+        return object_as_dict(obj)
 
     def new(self, obj):
         """add the object to the current database session"""
@@ -62,6 +77,6 @@ class Database:
         if obj is not None:
             self.__session.delete(obj)
 
-    def close(self):
-        """call remove() method on the private session attribute"""
-        self.__session.remove()
+    # def close(self):
+    #     """call remove() method on the private session attribute"""
+    #     self.__session.remove()
