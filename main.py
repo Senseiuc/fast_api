@@ -32,8 +32,11 @@ async def get_students() -> dict:
 
 
 @app.get("/get-student/{student_id}")
-async def get_student(student_id: int) -> dict:
-    return storage.get(Stud, student_id)
+async def get_student(student_id: int) -> dict | None:
+    stud = storage.get(Stud, student_id)
+    if stud is None:
+        return {'Error': 'Student does not exist'}
+    return stud
 
 
 # @app.get("/get-by-name")
@@ -45,10 +48,10 @@ async def get_student(student_id: int) -> dict:
 
 
 @app.post("/create-student/{student_id}")
-async def create_student(student_id: int, student: dict):
+async def create_student(student_id: int, student: Student):
     if storage.get(Stud, student_id) is not None:
         return {'Error': 'student exists'}
-    instance = Stud(student_id, **student)
+    instance = Stud(student_id, **dict(student))
     storage.new(instance)
     storage.save()
     return {'data': instance.__dict__, 'message': 'successfully created student'}

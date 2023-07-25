@@ -1,8 +1,7 @@
-import uuid
 from typing import Optional
 
 from sqlalchemy import create_engine, inspect
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 
 from attendance import Attendance
 from base_model import Base
@@ -30,10 +29,10 @@ class Database:
         """reloads data from the database"""
         Base.metadata.create_all(self.__engine)
         sess_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
-        # session = scoped_session(sess_factory)
-        self.__session = sess_factory()
+        session = scoped_session(sess_factory)
+        self.__session = session
 
-    def get(self, cls: [Student, Attendance], obj_id: Optional[uuid] = None) -> [Student, Attendance]:
+    def get(self, cls: [Student, Attendance], obj_id: Optional[int] = None) -> [Student, Attendance]:
         """
         Gets an object using the class and the id
         :param cls: the class of the object
@@ -41,7 +40,10 @@ class Database:
         :return: returns an object
         """
         if obj_id is not None:
-            return object_as_dict(self.__session.query(cls).filter_by(id=obj_id).first())
+            stud = self.__session.query(cls).filter_by(id=obj_id).first()
+            if stud is not None:
+                return object_as_dict(stud)
+            return stud
         stud_dictionary = {}
         for stud in self.__session.query(cls):
             stud_dictionary[stud.id] = object_as_dict(stud)
