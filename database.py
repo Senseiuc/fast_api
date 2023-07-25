@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 
 from sqlalchemy import create_engine, inspect
@@ -60,7 +61,21 @@ class Database:
         obj = self.__session.query(cls).filter_by(id=obj_id).first()
         if obj is not None:
             for key, value in kwargs.items():
-                setattr(obj, key, value)
+                if key == 'audio':
+                    if obj.audio:
+                        now = datetime.now()
+                        current_time = now.strftime("%H_%M_%S")
+                        audio_key = str(obj_id) + '_' + current_time
+                        aud = obj.audio
+                        aud[audio_key] = value
+                        setattr(obj, key, aud)
+                    else:
+                        now = datetime.now()
+                        current_time = now.strftime("%H_%M_%S")
+                        audio_key = str(obj_id)+current_time
+                        setattr(obj, key, {audio_key: value})
+                else:
+                    setattr(obj, key, value)
         self.save()
         return object_as_dict(obj)
 
